@@ -121,12 +121,12 @@
             "repository": {
               "type": "string",
               "title": "Data Grid container image",
-              "default": "quay.io/infinispan/server"
+              "default": "registry.redhat.io/datagrid/datagrid-8-rhel9"
             },
             "tag": {
               "type": "string",
               "title": "Image tag",
-              "default": "15.0"
+              "default": "latest"
             },
             "pullPolicy": {
               "type": "string",

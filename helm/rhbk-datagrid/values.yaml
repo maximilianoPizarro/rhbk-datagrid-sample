@@ -32,10 +32,11 @@ admin:
 datagrid:
   enabled: true
   image:
-    # Red Hat Data Grid alternative: registry.redhat.io/datagrid/datagrid-8-rhel9
-    # requires registry.redhat.io auth and a valid tag (e.g. "8.4.6-2")
-    repository: quay.io/infinispan/server
-    tag: "15.0"
+    # Official Red Hat Data Grid 8.5 (Infinispan 15.0)
+    # Requires registry.redhat.io auth (podman login registry.redhat.io)
+    # Community alternative: quay.io/infinispan/server:15.0
+    repository: registry.redhat.io/datagrid/datagrid-8-rhel9
+    tag: "latest"
     pullPolicy: IfNotPresent
   replicas: 2
   clusterName: datagrid-cluster

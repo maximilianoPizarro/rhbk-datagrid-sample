@@ -147,7 +147,7 @@ helm install ha ./helm/rhbk-datagrid \
 |-----------|-------------|---------|
 | `datagrid.enabled` | Deploy Data Grid | `true` |
 | `datagrid.image.repository` | Data Grid container image | `registry.redhat.io/datagrid/datagrid-8-rhel9` |
-| `datagrid.image.tag` | Image tag | `8.5` |
+| `datagrid.image.tag` | Image tag | `latest` |
 | `datagrid.replicas` | Number of Data Grid instances | `2` |
 | `datagrid.clusterName` | JGroups cluster name | `datagrid-cluster` |
 | `datagrid.credentials.username` | Hot Rod username | `developer` |

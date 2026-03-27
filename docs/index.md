@@ -141,8 +141,8 @@ helm install ha rhbk-datagrid/rhbk-datagrid \
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `datagrid.enabled` | Deploy Data Grid | `true` |
-| `datagrid.image.repository` | Data Grid image | `quay.io/infinispan/server` |
-| `datagrid.image.tag` | Image tag | `15.0` |
+| `datagrid.image.repository` | Data Grid image | `registry.redhat.io/datagrid/datagrid-8-rhel9` |
+| `datagrid.image.tag` | Image tag | `latest` |
 | `datagrid.replicas` | Number of instances | `2` |
 | `datagrid.clusterName` | JGroups cluster name | `datagrid-cluster` |
 | `datagrid.credentials.username` | Hot Rod username | `developer` |
