@@ -1,0 +1,404 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "RHBK + Data Grid HA Helm Chart Values",
+  "properties": {
+    "rhbk": {
+      "type": "object",
+      "title": "Red Hat Build of Keycloak",
+      "properties": {
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "RHBK container image",
+              "default": "registry.redhat.io/rhbk/keycloak-rhel9"
+            },
+            "tag": {
+              "type": "string",
+              "title": "Image tag",
+              "default": "26.0"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "title": "Image pull policy",
+              "enum": ["Always", "IfNotPresent", "Never"],
+              "default": "IfNotPresent"
+            }
+          },
+          "required": ["repository", "tag"]
+        },
+        "replicas": {
+          "type": "integer",
+          "title": "Number of RHBK instances",
+          "minimum": 1,
+          "default": 2
+        },
+        "resources": {
+          "type": "object",
+          "title": "Resource requests and limits",
+          "properties": {
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string", "default": "1" },
+                "memory": { "type": "string", "default": "1Gi" }
+              }
+            },
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string", "default": "500m" },
+                "memory": { "type": "string", "default": "512Mi" }
+              }
+            }
+          }
+        },
+        "cache": {
+          "type": "object",
+          "title": "Cache and JGroups configuration",
+          "properties": {
+            "stack": {
+              "type": "string",
+              "title": "JGroups transport stack",
+              "default": "jdbc-ping"
+            },
+            "remoteStore": {
+              "type": "object",
+              "title": "External Data Grid remote store",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "title": "Connect to external Data Grid",
+                  "default": true
+                },
+                "tlsEnabled": {
+                  "type": "boolean",
+                  "title": "Enable TLS for Data Grid connection",
+                  "default": false
+                },
+                "siteName": {
+                  "type": "string",
+                  "title": "Infinispan site name",
+                  "default": "site1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "admin": {
+      "type": "object",
+      "title": "Keycloak admin credentials",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "Admin username",
+          "default": "admin"
+        },
+        "password": {
+          "type": "string",
+          "title": "Admin password",
+          "default": "admin"
+        }
+      },
+      "required": ["username", "password"]
+    },
+    "datagrid": {
+      "type": "object",
+      "title": "Red Hat Data Grid (Infinispan)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Deploy Data Grid",
+          "default": true
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "Data Grid container image",
+              "default": "quay.io/infinispan/server"
+            },
+            "tag": {
+              "type": "string",
+              "title": "Image tag",
+              "default": "15.0"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "title": "Image pull policy",
+              "enum": ["Always", "IfNotPresent", "Never"],
+              "default": "IfNotPresent"
+            }
+          },
+          "required": ["repository", "tag"]
+        },
+        "replicas": {
+          "type": "integer",
+          "title": "Number of Data Grid instances",
+          "minimum": 1,
+          "default": 2
+        },
+        "clusterName": {
+          "type": "string",
+          "title": "JGroups cluster name",
+          "default": "datagrid-cluster"
+        },
+        "credentials": {
+          "type": "object",
+          "title": "Hot Rod authentication",
+          "properties": {
+            "username": {
+              "type": "string",
+              "title": "Hot Rod username",
+              "default": "developer"
+            },
+            "password": {
+              "type": "string",
+              "title": "Hot Rod password",
+              "default": "changeme"
+            }
+          },
+          "required": ["username", "password"]
+        },
+        "resources": {
+          "type": "object",
+          "title": "Resource requests and limits",
+          "properties": {
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string", "default": "500m" },
+                "memory": { "type": "string", "default": "1Gi" }
+              }
+            },
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string", "default": "250m" },
+                "memory": { "type": "string", "default": "512Mi" }
+              }
+            }
+          }
+        },
+        "persistence": {
+          "type": "object",
+          "title": "Persistent storage",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enable persistent storage",
+              "default": false
+            },
+            "size": {
+              "type": "string",
+              "title": "PVC size",
+              "default": "1Gi"
+            },
+            "storageClassName": {
+              "type": "string",
+              "title": "StorageClass name",
+              "default": ""
+            }
+          }
+        },
+        "jgroups": {
+          "type": "object",
+          "properties": {
+            "port": {
+              "type": "integer",
+              "title": "JGroups cluster port",
+              "default": 7800
+            }
+          }
+        },
+        "route": {
+          "type": "object",
+          "title": "Data Grid console OpenShift Route",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Create Data Grid console Route",
+              "default": true
+            },
+            "host": {
+              "type": "string",
+              "title": "Route hostname",
+              "default": ""
+            },
+            "tls": {
+              "type": "object",
+              "properties": {
+                "termination": {
+                  "type": "string",
+                  "title": "TLS termination type",
+                  "enum": ["edge", "passthrough", "reencrypt"],
+                  "default": "edge"
+                },
+                "insecureEdgeTerminationPolicy": {
+                  "type": "string",
+                  "enum": ["Allow", "Redirect", "None"],
+                  "default": "Redirect"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "postgresql": {
+      "type": "object",
+      "title": "PostgreSQL",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Deploy PostgreSQL",
+          "default": true
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "title": "PostgreSQL container image",
+              "default": "registry.redhat.io/rhel9/postgresql-16"
+            },
+            "tag": {
+              "type": "string",
+              "title": "Image tag",
+              "default": "latest"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "title": "Image pull policy",
+              "enum": ["Always", "IfNotPresent", "Never"],
+              "default": "IfNotPresent"
+            }
+          },
+          "required": ["repository", "tag"]
+        },
+        "credentials": {
+          "type": "object",
+          "title": "Database credentials",
+          "properties": {
+            "database": {
+              "type": "string",
+              "title": "Database name",
+              "default": "keycloak"
+            },
+            "username": {
+              "type": "string",
+              "title": "Database username",
+              "default": "keycloak"
+            },
+            "password": {
+              "type": "string",
+              "title": "Database password",
+              "default": "changeme"
+            }
+          },
+          "required": ["database", "username", "password"]
+        },
+        "resources": {
+          "type": "object",
+          "title": "Resource requests and limits",
+          "properties": {
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string", "default": "500m" },
+                "memory": { "type": "string", "default": "512Mi" }
+              }
+            },
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string", "default": "250m" },
+                "memory": { "type": "string", "default": "256Mi" }
+              }
+            }
+          }
+        },
+        "persistence": {
+          "type": "object",
+          "title": "Persistent storage",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "title": "Enable persistent storage",
+              "default": false
+            },
+            "size": {
+              "type": "string",
+              "title": "PVC size",
+              "default": "1Gi"
+            },
+            "storageClassName": {
+              "type": "string",
+              "title": "StorageClass name",
+              "default": ""
+            }
+          }
+        }
+      }
+    },
+    "route": {
+      "type": "object",
+      "title": "RHBK OpenShift Route",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Create RHBK Route",
+          "default": true
+        },
+        "host": {
+          "type": "string",
+          "title": "Route hostname",
+          "default": ""
+        },
+        "tls": {
+          "type": "object",
+          "properties": {
+            "termination": {
+              "type": "string",
+              "title": "TLS termination type",
+              "enum": ["edge", "passthrough", "reencrypt"],
+              "default": "edge"
+            },
+            "insecureEdgeTerminationPolicy": {
+              "type": "string",
+              "enum": ["Allow", "Redirect", "None"],
+              "default": "Redirect"
+            }
+          }
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "title": "RHBK Kubernetes Service",
+      "properties": {
+        "type": {
+          "type": "string",
+          "title": "Service type",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+          "default": "ClusterIP"
+        },
+        "httpPort": {
+          "type": "integer",
+          "title": "HTTP port",
+          "default": 8080
+        },
+        "httpsPort": {
+          "type": "integer",
+          "title": "HTTPS port",
+          "default": 8443
+        }
+      }
+    }
+  }
+}
