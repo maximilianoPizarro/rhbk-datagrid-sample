@@ -4,6 +4,12 @@ Helm chart for **Red Hat Build of Keycloak (RHBK)** in High Availability mode wi
 
 ---
 
+## OpenShift Topology
+
+![OpenShift Topology View](docs/datagrid-keycloak-topology.png)
+
+---
+
 ## Architecture
 
 ```

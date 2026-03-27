@@ -27,6 +27,12 @@ helm install ha rhbk-datagrid/rhbk-datagrid \
 
 ---
 
+## OpenShift Topology
+
+![OpenShift Topology View](datagrid-keycloak-topology.png)
+
+---
+
 ## Architecture
 
 ```
