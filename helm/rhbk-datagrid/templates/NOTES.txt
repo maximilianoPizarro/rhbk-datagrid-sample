@@ -1,0 +1,58 @@
+=====================================================
+ RHBK + Data Grid HA — Deployment Complete
+=====================================================
+
+Architecture deployed:
+
+  ┌──────────────┐
+  │  PostgreSQL  │ ← Shared DB + JGroups JDBC_PING discovery
+  └──────┬───────┘
+         │
+   ┌─────┴─────┐
+   │           │
+┌──┴──┐   ┌───┴──┐     ┌──────────────────────┐
+│RHBK │   │RHBK  │────►│  Data Grid (x{{ .Values.datagrid.replicas }})      │
+│  1  │◄─►│  2   │     │  External cache store │
+│     │   │      │     │  Hot Rod: 11222       │
+└─────┘   └──────┘     └──────────────────────┘
+  JGroups cluster
+  ({{ .Values.rhbk.cache.stack }})
+
+1. RHBK Admin Console:
+{{- if .Values.route.enabled }}
+   kubectl get route {{ include "rhbk-datagrid.rhbk" . }} -n {{ .Release.Namespace }} \
+     -o jsonpath='{.spec.host}'
+{{- else }}
+   kubectl port-forward svc/{{ include "rhbk-datagrid.rhbk" . }} {{ .Values.service.httpPort }}:{{ .Values.service.httpPort }} -n {{ .Release.Namespace }}
+   Open: http://localhost:{{ .Values.service.httpPort }}
+{{- end }}
+
+2. Admin Credentials:
+   Username: {{ .Values.admin.username }}
+   Password: {{ .Values.admin.password }}
+   WARNING: Change the admin password immediately after first login.
+
+3. Cluster status:
+   RHBK replicas:       {{ .Values.rhbk.replicas }}
+   Data Grid replicas:  {{ .Values.datagrid.replicas }}
+   JGroups stack:       {{ .Values.rhbk.cache.stack }}
+   Remote cache store:  {{ .Values.rhbk.cache.remoteStore.enabled }}
+
+4. Verify cluster formation:
+   # Check RHBK pods
+   kubectl get pods -l app.kubernetes.io/component=keycloak -n {{ .Release.Namespace }}
+
+   # Check Data Grid pods
+   kubectl get pods -l app.kubernetes.io/component=datagrid -n {{ .Release.Namespace }}
+
+   # Check JGroups cluster view in RHBK logs (look for ISPN000094)
+   kubectl logs -l app.kubernetes.io/component=keycloak -n {{ .Release.Namespace }} | grep ISPN000094
+
+   # Check Data Grid cluster health
+   kubectl exec -it {{ include "rhbk-datagrid.datagrid" . }}-0 -n {{ .Release.Namespace }} -- \
+     curl -u {{ .Values.datagrid.credentials.username }}:{{ .Values.datagrid.credentials.password }} \
+     http://localhost:11222/rest/v2/cluster?action=distribution
+
+5. Data Grid console:
+   kubectl port-forward svc/{{ include "rhbk-datagrid.datagrid" . }} 11222:11222 -n {{ .Release.Namespace }}
+   Open: http://localhost:11222/console

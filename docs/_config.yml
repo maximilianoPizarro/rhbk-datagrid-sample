@@ -1,0 +1,5 @@
+title: RHBK + Data Grid HA
+description: Helm chart for Red Hat Build of Keycloak HA with Data Grid
+theme: jekyll-theme-cayman
+baseurl: /rhbk-datagrid-sample
+url: https://maximilianopizarro.github.io

@@ -1,0 +1,36 @@
+apiVersion: v2
+name: rhbk-datagrid
+description: >-
+  Red Hat Build of Keycloak (RHBK) High Availability deployment with
+  Red Hat Data Grid as external distributed cache and PostgreSQL.
+  Deploys 2 RHBK instances clustered via JGroups (jdbc-ping) backed
+  by an external Data Grid for session persistence.
+type: application
+version: 1.0.0
+appVersion: "26.0"
+keywords:
+  - keycloak
+  - rhbk
+  - datagrid
+  - infinispan
+  - high-availability
+  - jgroups
+  - sso
+  - openshift
+icon: https://www.keycloak.org/resources/images/logo.svg
+home: https://github.com/maximilianoPizarro/rhbk-datagrid-sample
+sources:
+  - https://github.com/maximilianoPizarro/rhbk-datagrid-sample
+maintainers:
+  - name: maximilianoPizarro
+    email: maximiliano.pizarro.5@gmail.com
+    url: https://github.com/maximilianoPizarro
+annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: RHBK Documentation
+      url: https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.0/
+    - name: Data Grid Documentation
+      url: https://docs.redhat.com/en/documentation/red_hat_data_grid/8.5/
+    - name: RHBK HA Guide
+      url: https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.4/html/high_availability_guide/

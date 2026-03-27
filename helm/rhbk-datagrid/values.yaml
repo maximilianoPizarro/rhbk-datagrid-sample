@@ -1,0 +1,108 @@
+# ---------------------------------------------------------------
+# RHBK (Red Hat Build of Keycloak) — HA cluster
+# ---------------------------------------------------------------
+rhbk:
+  image:
+    # Alternative community image: quay.io/keycloak/keycloak:26.0
+    repository: registry.redhat.io/rhbk/keycloak-rhel9
+    tag: "26.0"
+    pullPolicy: IfNotPresent
+  replicas: 2
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  cache:
+    stack: jdbc-ping
+    remoteStore:
+      enabled: true
+      tlsEnabled: false
+      siteName: site1
+
+admin:
+  username: admin
+  password: admin
+
+# ---------------------------------------------------------------
+# Red Hat Data Grid (Infinispan) — external distributed cache
+# ---------------------------------------------------------------
+datagrid:
+  enabled: true
+  image:
+    # Red Hat Data Grid alternative: registry.redhat.io/datagrid/datagrid-8-rhel9
+    # requires registry.redhat.io auth and a valid tag (e.g. "8.4.6-2")
+    repository: quay.io/infinispan/server
+    tag: "15.0"
+    pullPolicy: IfNotPresent
+  replicas: 2
+  clusterName: datagrid-cluster
+  credentials:
+    username: developer
+    password: changeme
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  persistence:
+    enabled: false
+    size: 1Gi
+    storageClassName: ""
+  jgroups:
+    port: 7800
+  route:
+    enabled: true
+    host: ""
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+
+# ---------------------------------------------------------------
+# PostgreSQL — shared database for RHBK + JGroups JDBC_PING
+# ---------------------------------------------------------------
+postgresql:
+  enabled: true
+  image:
+    # Alternative community image: docker.io/library/postgres:16-alpine
+    # Community image uses env vars: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+    repository: registry.redhat.io/rhel9/postgresql-16
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  credentials:
+    database: keycloak
+    username: keycloak
+    password: changeme
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  persistence:
+    enabled: false
+    size: 1Gi
+    storageClassName: ""
+
+# ---------------------------------------------------------------
+# OpenShift Route
+# ---------------------------------------------------------------
+route:
+  enabled: true
+  host: ""
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+# ---------------------------------------------------------------
+# Kubernetes Service for RHBK
+# ---------------------------------------------------------------
+service:
+  type: ClusterIP
+  httpPort: 8080
+  httpsPort: 8443

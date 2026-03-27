@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rhbk-datagrid.rhbk" . }}
+  labels:
+    {{- include "rhbk-datagrid.rhbkLabels" . | nindent 4 }}
+    app.kubernetes.io/part-of: {{ include "rhbk-datagrid.fullname" . }}
+    app.openshift.io/runtime: sso
+  annotations:
+    app.openshift.io/runtime: sso
+    {{- if .Values.datagrid.enabled }}
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"StatefulSet","name":"{{ include "rhbk-datagrid.datagrid" . }}"},{"apiVersion":"apps/v1","kind":"StatefulSet","name":"{{ include "rhbk-datagrid.postgresql" . }}"}]'
+    {{- else if .Values.postgresql.enabled }}
+    app.openshift.io/connects-to: '[{"apiVersion":"apps/v1","kind":"StatefulSet","name":"{{ include "rhbk-datagrid.postgresql" . }}"}]'
+    {{- end }}
+spec:
+  replicas: {{ .Values.rhbk.replicas }}
+  selector:
+    matchLabels:
+      {{- include "rhbk-datagrid.rhbkSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "rhbk-datagrid.rhbkSelectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: keycloak
+          image: {{ .Values.rhbk.image.repository }}:{{ .Values.rhbk.image.tag }}
+          imagePullPolicy: {{ .Values.rhbk.image.pullPolicy }}
+          args:
+            - start
+            - --features=multi-site
+            - --spi-connections-infinispan-quarkus-site-name={{ .Values.rhbk.cache.remoteStore.siteName }}
+          env:
+            # ---- HTTP / Proxy ----
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KC_HOSTNAME_STRICT
+              value: "false"
+            - name: KC_PROXY_HEADERS
+              value: "xforwarded"
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+            - name: KC_METRICS_ENABLED
+              value: "true"
+            # ---- Database (PostgreSQL) ----
+            {{- if .Values.postgresql.enabled }}
+            - name: KC_DB
+              value: postgres
+            - name: KC_DB_URL
+              value: {{ include "rhbk-datagrid.jdbcUrl" . | quote }}
+            - name: KC_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "rhbk-datagrid.rhbk" . }}
+                  key: KC_DB_USERNAME
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "rhbk-datagrid.rhbk" . }}
+                  key: KC_DB_PASSWORD
+            {{- end }}
+            # ---- Cache / JGroups ----
+            - name: KC_CACHE
+              value: ispn
+            - name: KC_CACHE_STACK
+              value: {{ .Values.rhbk.cache.stack | quote }}
+            # ---- External Data Grid (remote store) ----
+            {{- if and .Values.datagrid.enabled .Values.rhbk.cache.remoteStore.enabled }}
+            - name: KC_CACHE_REMOTE_HOST
+              value: {{ include "rhbk-datagrid.datagrid" . | quote }}
+            - name: KC_CACHE_REMOTE_PORT
+              value: "11222"
+            - name: KC_CACHE_REMOTE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "rhbk-datagrid.rhbk" . }}
+                  key: KC_CACHE_REMOTE_USERNAME
+            - name: KC_CACHE_REMOTE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "rhbk-datagrid.rhbk" . }}
+                  key: KC_CACHE_REMOTE_PASSWORD
+            - name: KC_CACHE_REMOTE_TLS_ENABLED
+              value: {{ .Values.rhbk.cache.remoteStore.tlsEnabled | quote }}
+            {{- end }}
+            # ---- Admin credentials ----
+            - name: KC_BOOTSTRAP_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "rhbk-datagrid.rhbk" . }}
+                  key: KC_BOOTSTRAP_ADMIN_USERNAME
+            - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "rhbk-datagrid.rhbk" . }}
+                  key: KC_BOOTSTRAP_ADMIN_PASSWORD
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: https
+              containerPort: 8443
+              protocol: TCP
+            - name: management
+              containerPort: 9000
+              protocol: TCP
+            - name: jgroups
+              containerPort: 7800
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: management
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: management
+            initialDelaySeconds: 120
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.rhbk.resources | nindent 12 }}

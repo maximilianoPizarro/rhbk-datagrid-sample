@@ -1,0 +1,70 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "rhbk-datagrid.postgresql" . }}
+  labels:
+    {{- include "rhbk-datagrid.postgresqlLabels" . | nindent 4 }}
+    app.kubernetes.io/part-of: {{ include "rhbk-datagrid.fullname" . }}
+    app.openshift.io/runtime: postgresql
+  annotations:
+    app.openshift.io/runtime: postgresql
+spec:
+  serviceName: {{ include "rhbk-datagrid.postgresql" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "rhbk-datagrid.postgresqlSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "rhbk-datagrid.postgresqlSelectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: postgresql
+          image: {{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }}
+          imagePullPolicy: {{ .Values.postgresql.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{ include "rhbk-datagrid.postgresql" . }}
+          ports:
+            - name: tcp-postgresql
+              containerPort: 5432
+              protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+                - /usr/libexec/check-container
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                - /usr/libexec/check-container
+                - --live
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.postgresql.resources | nindent 12 }}
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/pgsql/data
+      {{- if not .Values.postgresql.persistence.enabled }}
+      volumes:
+        - name: pgdata
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.postgresql.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: pgdata
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        {{- if .Values.postgresql.persistence.storageClassName }}
+        storageClassName: {{ .Values.postgresql.persistence.storageClassName | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.postgresql.persistence.size }}
+  {{- end }}
+{{- end }}

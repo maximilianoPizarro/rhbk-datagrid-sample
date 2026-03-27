@@ -1,0 +1,22 @@
+{{- if and .Values.datagrid.enabled .Values.datagrid.route.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "rhbk-datagrid.datagrid" . }}-console
+  labels:
+    {{- include "rhbk-datagrid.datagridLabels" . | nindent 4 }}
+spec:
+  {{- if .Values.datagrid.route.host }}
+  host: {{ .Values.datagrid.route.host }}
+  {{- end }}
+  port:
+    targetPort: hotrod
+  tls:
+    termination: {{ .Values.datagrid.route.tls.termination }}
+    insecureEdgeTerminationPolicy: {{ .Values.datagrid.route.tls.insecureEdgeTerminationPolicy }}
+  to:
+    kind: Service
+    name: {{ include "rhbk-datagrid.datagrid" . }}
+    weight: 100
+  wildcardPolicy: None
+{{- end }}

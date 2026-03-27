@@ -1,0 +1,17 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rhbk-datagrid.postgresql" . }}
+  labels:
+    {{- include "rhbk-datagrid.postgresqlLabels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: tcp-postgresql
+      protocol: TCP
+      name: tcp-postgresql
+  selector:
+    {{- include "rhbk-datagrid.postgresqlSelectorLabels" . | nindent 4 }}
+{{- end }}
