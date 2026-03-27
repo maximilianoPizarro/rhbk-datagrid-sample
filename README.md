@@ -110,7 +110,7 @@ If you don't have access to `registry.redhat.io`, use community equivalents:
 helm install ha ./helm/rhbk-datagrid \
   -n keycloak --create-namespace \
   --set rhbk.image.repository=quay.io/keycloak/keycloak \
-  --set rhbk.image.tag=26.0 \
+  --set rhbk.image.tag=26 \
   --set datagrid.image.repository=quay.io/infinispan/server \
   --set datagrid.image.tag=15.0 \
   --set postgresql.image.repository=docker.io/library/postgres \
@@ -128,7 +128,7 @@ helm install ha ./helm/rhbk-datagrid \
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `rhbk.image.repository` | RHBK container image | `registry.redhat.io/rhbk/keycloak-rhel9` |
-| `rhbk.image.tag` | Image tag | `26.0` |
+| `rhbk.image.tag` | Image tag | `26` |
 | `rhbk.replicas` | Number of RHBK instances | `2` |
 | `rhbk.resources.requests.cpu` | CPU request per instance | `500m` |
 | `rhbk.resources.requests.memory` | Memory request per instance | `512Mi` |

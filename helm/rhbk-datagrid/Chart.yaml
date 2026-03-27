@@ -7,7 +7,7 @@ description: >-
   by an external Data Grid for session persistence.
 type: application
 version: 1.0.0
-appVersion: "26.0"
+appVersion: "26"
 keywords:
   - keycloak
   - rhbk

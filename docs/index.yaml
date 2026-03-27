@@ -11,13 +11,13 @@ entries:
         - name: RHBK HA Guide
           url: https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.4/html/high_availability_guide/
     apiVersion: v2
-    appVersion: "26.0"
-    created: "2026-03-27T17:59:09.697459632Z"
+    appVersion: "26"
+    created: "2026-03-27T15:23:03.9957076-03:00"
     description: Red Hat Build of Keycloak (RHBK) High Availability deployment with
       Red Hat Data Grid as external distributed cache and PostgreSQL. Deploys 2 RHBK
       instances clustered via JGroups (jdbc-ping) backed by an external Data Grid
       for session persistence.
-    digest: bc150e4ff8becc04c0b1e37a872aaf86b74aa335b5190478d122f6e73e0dc1ff
+    digest: b4ea8fba009b91efe14158648017565c915a5989aee1e105323e465c8e8012ed
     home: https://github.com/maximilianoPizarro/rhbk-datagrid-sample
     icon: https://www.keycloak.org/resources/images/logo.svg
     keywords:
@@ -40,4 +40,4 @@ entries:
     urls:
     - https://maximilianopizarro.github.io/rhbk-datagrid-sample/rhbk-datagrid-1.0.0.tgz
     version: 1.0.0
-generated: "2026-03-27T17:59:09.696633673Z"
+generated: "2026-03-27T15:23:03.994671-03:00"
